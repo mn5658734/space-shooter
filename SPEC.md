@@ -9,7 +9,6 @@ A classic vertical-scrolling 2D space shooter built with Phaser.js, featuring pi
 
 ### Core Gameplay
 - **Vertical scrolling** shooter with player ship at bottom of screen
-- **Smooth 60 FPS** gameplay in modern browsers
 - **Touch-friendly** controls for mobile support
 - **Keyboard controls**: Arrow keys or WASD for movement, Space to shoot
 
@@ -109,10 +108,7 @@ A classic vertical-scrolling 2D space shooter built with Phaser.js, featuring pi
 **Goal**: Complete game with boss fights, multiple levels, and polish
 
 **Features**:
-- [ ] 3 distinct levels with unique backgrounds
-  - Level 1: Deep space (stars + far planets)
-  - Level 2: Planet approach (big planet + ring planet)
-  - Level 3: Alien territory (industrial/bulkhead aesthetic)
+- [ ] 3 distinct levels with unique backgrounds, enemies, and bosses (see Level Design below)
 - [ ] Boss encounter at end of each level
   - [ ] Boss health bar UI
   - [ ] Multiple attack patterns per boss
@@ -123,14 +119,81 @@ A classic vertical-scrolling 2D space shooter built with Phaser.js, featuring pi
 - [ ] Screen shake on explosions
 - [ ] Particle effects for engine thrust
 - [ ] Mobile touch controls
-- [ ] Audio: background music + SFX (if available)
+- [ ] Audio: background music + SFX
 
 **Playable Outcome**: Complete game experience—start menu, 3 levels with bosses, win/lose conditions, replayability.
 
-**Assets Used**:
-- All Milestone 2 assets
-- Industrial/bulkhead backgrounds for Level 3
-- Desert backgrounds (optional alternate level)
+---
+
+## Level Design (Proposed)
+
+Level 1 keeps the current space theme. Levels 2 and 3 get unique themes with new backgrounds, enemies, and bosses.
+
+### Level 1: Deep Space (Current)
+**Theme**: Classic space shooter - stars and planets
+
+**Backgrounds**: Current space background + stars + far-planets (already implemented)
+
+**Enemies**: Current enemy-small, enemy-medium, enemy-big (already implemented)
+
+**Boss**: Current boss (already implemented)
+
+---
+
+### Level 2: Desert Canyon (NEW)
+**Theme**: Hot, arid alien desert with rocky formations
+
+**Backgrounds**:
+| Layer | Asset | Path |
+|-------|-------|------|
+| Base | Desert Background | `Packs/SpaceShipShooter/Desert/backgrounds/desert-backgorund.png` (256x272) |
+| Parallax | Desert Clouds | `Packs/SpaceShipShooter/Desert/backgrounds/clouds.png` (256x103) |
+
+**Enemies**:
+| Type | Asset | Path | Notes |
+|------|-------|------|-------|
+| Small | Green Mech | `Characters/top-down-shooter-enemies/spritesheets/enemy-01.png` | 240x48, 5 frames (48x48 each) |
+| Medium | Blue Robot | `Characters/top-down-shooter-enemies/spritesheets/enemy-02.png` | 240x48, 5 frames |
+| Big | Red Armored | `Characters/top-down-shooter-enemies/spritesheets/enemy-03.png` | 240x48, 5 frames |
+
+**Boss**: Fire Skull
+- Asset: `Characters/Fire-Skull-Files/Spritesheets/fire-skull.png` (768x112)
+- Frame size: 96x112 (8 frames)
+- Visual: Flaming skull with fire particles
+- Attack patterns: Fire breath spread, homing fireballs
+
+---
+
+### Level 3: River Valley (NEW)
+**Theme**: Lush alien landscape with flowing water and mystical creatures
+
+**Backgrounds**:
+| Layer | Asset | Path |
+|-------|-------|------|
+| Base | River Background | `Packs/SpaceShipShooter/River/PNG/background.png` (256x320) |
+
+**Enemies**:
+| Type | Asset | Path | Notes |
+|------|-------|------|-------|
+| Small | Alien Flyer | `Characters/alien-flying-enemy/spritesheet.png` | 664x64, 8 frames (83x64 each) |
+| Medium | Flying Eye | `Characters/flying-eye-demon/Spritesheet.png` | 384x48, 8 frames (48x48 each) |
+| Big | Mech Unit | `Characters/mech-unit/spritesheet/mech-unit.png` | 960x80, 12 frames (80x80 each) |
+
+**Boss**: Grotto Dragon
+- Idle: `Characters/Grotto-escape-2-boss-dragon/spritesheets/idle.png` (864x64, 6 frames - 144x64 each)
+- Breath: `Characters/Grotto-escape-2-boss-dragon/spritesheets/breath.png` (1008x64, 7 frames)
+- Visual: Dark red/maroon dragon
+- Attack patterns: Breath fire, dive attacks
+
+---
+
+### Asset Summary by Level
+
+| Level | Theme | Background | Enemies | Boss |
+|-------|-------|------------|---------|------|
+| 1 | Deep Space | Space + Stars + Planets | Pink ships (current) | Current Boss |
+| 2 | Desert Canyon | Desert + Clouds | Green/Blue/Red mechs | Fire Skull |
+| 3 | River Valley | River landscape | Aliens + Eye + Mech | Grotto Dragon |
 
 ---
 

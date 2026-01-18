@@ -78,11 +78,11 @@ export default class GameScene extends Phaser.Scene {
 
         // Setup sounds
         this.sounds = {
-            shoot: this.sound.add('sfx-shoot', { volume: 0.3 }),
             explosion: this.sound.add('sfx-explosion', { volume: 0.4 }),
             hit: this.sound.add('sfx-hit', { volume: 0.5 }),
             powerup: this.sound.add('sfx-powerup', { volume: 0.6 }),
-            playerDeath: this.sound.add('sfx-player-death', { volume: 0.5 })
+            playerDeath: this.sound.add('sfx-player-death', { volume: 0.5 }),
+            bossWarning: this.sound.add('sfx-boss-warning', { volume: 0.7 })
         };
 
         // Show level intro then start
@@ -352,9 +352,6 @@ export default class GameScene extends Phaser.Scene {
         const x = this.player.x;
         const y = this.player.y - 20;
 
-        // Play shoot sound
-        this.sounds.shoot.play();
-
         if (this.weaponLevel === 1) {
             this.createBullet(x, y, 0);
         } else if (this.weaponLevel === 2) {
@@ -583,6 +580,11 @@ export default class GameScene extends Phaser.Scene {
 
     startBossFight() {
         this.bossActive = true;
+
+        // Play boss warning sound repeatedly
+        this.sounds.bossWarning.play();
+        this.time.delayedCall(400, () => this.sounds.bossWarning.play());
+        this.time.delayedCall(800, () => this.sounds.bossWarning.play());
 
         this.announceText.setText('WARNING!\nBOSS APPROACHING');
         this.announceText.setFill('#ff0000');

@@ -11,151 +11,291 @@ export default class VictoryScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Static background image (no seams)
+        // Epic golden tinted background
         this.bg = this.add.image(240, 320, 'background')
-            .setDisplaySize(480, 640);
+            .setDisplaySize(480, 640)
+            .setTint(0x332200);
 
-        // Scrolling stars layer
+        // Fast scrolling stars (victory zoom effect)
         this.stars = this.add.tileSprite(0, 0, 480, 640, 'stars')
             .setOrigin(0, 0)
-            .setTileScale(2);
+            .setTileScale(2)
+            .setTint(0xffdd88);
 
-        // Victory title
-        const victoryText = this.add.text(width / 2, 100, 'VICTORY!', {
-            fontFamily: 'monospace',
-            fontSize: '56px',
-            fill: '#ffdd00',
-            stroke: '#000',
-            strokeThickness: 8
-        }).setOrigin(0.5);
-
-        // Pulsing effect
-        this.tweens.add({
-            targets: victoryText,
-            scale: { from: 1, to: 1.1 },
-            duration: 500,
-            yoyo: true,
-            repeat: -1
+        // Celebration explosions - colorful fireworks!
+        this.time.addEvent({
+            delay: 400,
+            callback: () => this.createFirework(),
+            loop: true
         });
 
-        // Subtitle
-        this.add.text(width / 2, 170, 'You saved the galaxy!', {
-            fontFamily: 'monospace',
-            fontSize: '20px',
-            fill: '#fff',
-            stroke: '#000',
-            strokeThickness: 4
-        }).setOrigin(0.5);
+        // ===== VICTORY TITLE =====
 
-        // Final score
-        this.add.text(width / 2, 260, 'FINAL SCORE', {
-            fontFamily: 'monospace',
-            fontSize: '20px',
-            fill: '#888'
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, 300, this.finalScore.toString(), {
-            fontFamily: 'monospace',
-            fontSize: '48px',
-            fill: '#fff',
-            stroke: '#000',
-            strokeThickness: 6
-        }).setOrigin(0.5);
-
-        // High score check & save
-        const highScore = parseInt(localStorage.getItem('highScore')) || 0;
-        if (this.finalScore > highScore) {
-            localStorage.setItem('highScore', this.finalScore);
-
-            const newRecord = this.add.text(width / 2, 360, 'NEW RECORD!', {
+        // Multiple glow layers for epic effect
+        const colors = ['#ffdd00', '#ff8800', '#ffaa00'];
+        for (let i = 5; i > 0; i--) {
+            this.add.text(width / 2, 70, 'VICTORY', {
                 fontFamily: 'monospace',
-                fontSize: '28px',
-                fill: '#ff0'
-            }).setOrigin(0.5);
-
-            this.tweens.add({
-                targets: newRecord,
-                alpha: { from: 1, to: 0.3 },
-                duration: 300,
-                yoyo: true,
-                repeat: -1
-            });
+                fontSize: '64px',
+                fill: colors[i % 3]
+            }).setOrigin(0.5).setAlpha(0.15).setScale(1 + i * 0.03);
         }
 
-        // Save completion
-        localStorage.setItem('gameCompleted', 'true');
-        localStorage.setItem('bestLevel', '3');
-
-        // Stats
-        this.add.text(width / 2, 420, 'All 3 levels completed!', {
+        const victoryText = this.add.text(width / 2, 70, 'VICTORY', {
             fontFamily: 'monospace',
-            fontSize: '18px',
-            fill: '#0f0'
+            fontSize: '64px',
+            fill: '#ffffff',
+            stroke: '#ff8800',
+            strokeThickness: 10
         }).setOrigin(0.5);
 
-        this.add.text(width / 2, 450, 'All bosses defeated!', {
-            fontFamily: 'monospace',
-            fontSize: '18px',
-            fill: '#0f0'
-        }).setOrigin(0.5);
-
-        // Decorative ship
-        this.ship = this.add.sprite(width / 2, 520, 'ship').setScale(4);
-        this.ship.play('ship-thrust');
-
-        // Ship celebration animation
+        // Pulsing victory text
         this.tweens.add({
-            targets: this.ship,
-            y: { from: 520, to: 500 },
-            duration: 1000,
+            targets: victoryText,
+            scale: { from: 1, to: 1.08 },
+            duration: 400,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
         });
 
-        // Play again prompt
-        const playAgain = this.add.text(width / 2, 590, 'PRESS SPACE TO PLAY AGAIN', {
+        // Subtitle
+        const subtitleText = this.add.text(width / 2, 130, '>>> GALAXY SAVED <<<', {
             fontFamily: 'monospace',
             fontSize: '18px',
-            fill: '#fff'
+            fill: '#00ffff',
+            stroke: '#000000',
+            strokeThickness: 3
         }).setOrigin(0.5);
 
         this.tweens.add({
-            targets: playAgain,
-            alpha: { from: 1, to: 0.3 },
-            duration: 500,
+            targets: subtitleText,
+            alpha: { from: 1, to: 0.5 },
+            duration: 800,
             yoyo: true,
             repeat: -1
         });
 
-        // Input handlers
+        // ===== HERO SHIP =====
+
+        // Ship trail effect
+        this.shipTrails = [];
+        for (let i = 0; i < 5; i++) {
+            const trail = this.add.sprite(240, 350 + i * 15, 'ship')
+                .setScale(4 - i * 0.3)
+                .setAlpha(0.3 - i * 0.05)
+                .setTint(0x00aaff);
+            this.shipTrails.push(trail);
+        }
+
+        // Main ship
+        this.ship = this.add.sprite(240, 350, 'ship').setScale(5);
+        this.ship.play('ship-thrust');
+
+        // Ship floating with victory pose
+        this.tweens.add({
+            targets: this.ship,
+            y: { from: 350, to: 320 },
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Ship rotation celebration
+        this.tweens.add({
+            targets: this.ship,
+            angle: { from: -5, to: 5 },
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // ===== STATS =====
+
+        const statsBox = this.add.rectangle(width / 2, 480, 340, 140, 0x000000, 0.7)
+            .setStrokeStyle(3, 0xffcc00);
+
+        // Final score label
+        this.add.text(width / 2, 425, '=== MISSION COMPLETE ===', {
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            fill: '#00ff00'
+        }).setOrigin(0.5);
+
+        // Animated score counter
+        const scoreLabel = this.add.text(width / 2, 455, 'FINAL SCORE', {
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            fill: '#888888'
+        }).setOrigin(0.5);
+
+        const scoreText = this.add.text(width / 2, 490, '0', {
+            fontFamily: 'monospace',
+            fontSize: '48px',
+            fill: '#ffdd00',
+            stroke: '#000000',
+            strokeThickness: 6
+        }).setOrigin(0.5);
+
+        // Count up animation
+        this.tweens.addCounter({
+            from: 0,
+            to: this.finalScore,
+            duration: 2000,
+            ease: 'Power2',
+            onUpdate: (tween) => {
+                scoreText.setText(Math.floor(tween.getValue()).toString());
+            }
+        });
+
+        // High score check & celebration
+        const highScore = parseInt(localStorage.getItem('highScore')) || 0;
+        if (this.finalScore > highScore) {
+            localStorage.setItem('highScore', this.finalScore);
+
+            const newRecordText = this.add.text(width / 2, 535, '!!! NEW GALAXY RECORD !!!', {
+                fontFamily: 'monospace',
+                fontSize: '18px',
+                fill: '#ff00ff',
+                stroke: '#000000',
+                strokeThickness: 4
+            }).setOrigin(0.5);
+
+            this.tweens.add({
+                targets: newRecordText,
+                scale: { from: 1, to: 1.2 },
+                alpha: { from: 1, to: 0.6 },
+                duration: 300,
+                yoyo: true,
+                repeat: -1
+            });
+
+            // Extra fireworks for new record!
+            this.time.addEvent({
+                delay: 200,
+                callback: () => this.createFirework(),
+                loop: true
+            });
+        }
+
+        // Achievements
+        localStorage.setItem('gameCompleted', 'true');
+        localStorage.setItem('bestLevel', '3');
+
+        // ===== ACHIEVEMENTS =====
+
+        const achievements = [
+            { text: 'All 3 Sectors Cleared', color: '#00ff00' },
+            { text: 'All Bosses Eliminated', color: '#ff8800' },
+            { text: 'Galaxy Champion', color: '#ffdd00' }
+        ];
+
+        achievements.forEach((ach, i) => {
+            this.time.delayedCall(500 + i * 400, () => {
+                const achText = this.add.text(width / 2, 180 + i * 25, ach.text, {
+                    fontFamily: 'monospace',
+                    fontSize: '14px',
+                    fill: ach.color,
+                    stroke: '#000000',
+                    strokeThickness: 2
+                }).setOrigin(0.5).setAlpha(0).setScale(0.5);
+
+                this.tweens.add({
+                    targets: achText,
+                    alpha: 1,
+                    scale: 1,
+                    duration: 300,
+                    ease: 'Back.easeOut'
+                });
+            });
+        });
+
+        // ===== PLAY AGAIN =====
+
+        const playAgainBtn = this.add.text(width / 2, 580, '[ RETURN TO BASE ]', {
+            fontFamily: 'monospace',
+            fontSize: '20px',
+            fill: '#00ffff',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        playAgainBtn.on('pointerover', () => {
+            playAgainBtn.setScale(1.1);
+            playAgainBtn.setFill('#ffffff');
+        });
+        playAgainBtn.on('pointerout', () => {
+            playAgainBtn.setScale(1);
+            playAgainBtn.setFill('#00ffff');
+        });
+        playAgainBtn.on('pointerdown', () => {
+            this.cameras.main.flash(500, 255, 255, 255);
+            this.time.delayedCall(300, () => {
+                this.scene.start('MenuScene');
+            });
+        });
+
+        this.tweens.add({
+            targets: playAgainBtn,
+            alpha: { from: 1, to: 0.5 },
+            duration: 600,
+            yoyo: true,
+            repeat: -1
+        });
+
+        this.add.text(width / 2, 615, 'Press SPACE to continue', {
+            fontFamily: 'monospace',
+            fontSize: '10px',
+            fill: '#444444'
+        }).setOrigin(0.5);
+
+        // ===== INPUT =====
+
         this.input.keyboard.once('keydown-SPACE', () => {
-            this.scene.start('MenuScene');
+            this.cameras.main.flash(500, 255, 255, 255);
+            this.time.delayedCall(300, () => {
+                this.scene.start('MenuScene');
+            });
         });
 
         this.input.once('pointerdown', () => {
-            this.scene.start('MenuScene');
+            this.cameras.main.flash(500, 255, 255, 255);
+            this.time.delayedCall(300, () => {
+                this.scene.start('MenuScene');
+            });
         });
 
-        // Create celebration particles (explosions around the screen)
-        this.celebrationTimer = this.time.addEvent({
-            delay: 800,
-            callback: () => this.createCelebrationExplosion(),
-            loop: true
-        });
+        // Initial celebration flash
+        this.cameras.main.flash(1000, 255, 200, 0);
     }
 
     update() {
-        // Scroll stars only (background is static)
-        this.stars.tilePositionY -= 0.5;
+        // Fast scrolling stars for victory feel
+        this.stars.tilePositionY -= 2;
+
+        // Update ship trails
+        this.shipTrails.forEach((trail, i) => {
+            trail.x = this.ship.x;
+            trail.y = this.ship.y + (i + 1) * 12;
+            trail.angle = this.ship.angle;
+        });
     }
 
-    createCelebrationExplosion() {
+    createFirework() {
         const x = Phaser.Math.Between(50, 430);
-        const y = Phaser.Math.Between(100, 400);
+        const y = Phaser.Math.Between(50, 600);
 
-        const explosion = this.add.sprite(x, y, 'explosion-large').setScale(1.5);
-        explosion.setTint(Phaser.Math.RND.pick([0xffdd00, 0x00ffff, 0xff00ff, 0x00ff00]));
+        // Random color firework
+        const colors = [0xffdd00, 0x00ffff, 0xff00ff, 0x00ff00, 0xff8800, 0xff4444];
+        const color = Phaser.Math.RND.pick(colors);
+
+        const explosion = this.add.sprite(x, y, 'explosion-large')
+            .setScale(Phaser.Math.Between(8, 15) / 10)
+            .setTint(color)
+            .setAlpha(0.8);
+
         explosion.play('explode-large');
         explosion.on('animationcomplete', () => explosion.destroy());
     }

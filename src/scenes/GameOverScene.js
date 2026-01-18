@@ -13,143 +13,258 @@ export default class GameOverScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Static background image (no seams)
+        // Dark red tinted background
         this.bg = this.add.image(240, 320, 'background')
-            .setDisplaySize(480, 640);
+            .setDisplaySize(480, 640)
+            .setTint(0x440000);
 
-        // Scrolling stars layer
+        // Static/glitch effect overlay
+        this.staticOverlay = this.add.rectangle(240, 320, 480, 640, 0x000000, 0)
+            .setDepth(50);
+
+        // Glitch effect timer
+        this.time.addEvent({
+            delay: 100,
+            callback: () => {
+                this.staticOverlay.setAlpha(Math.random() * 0.1);
+                if (Math.random() > 0.9) {
+                    this.cameras.main.shake(50, 0.005);
+                }
+            },
+            loop: true
+        });
+
+        // Scrolling stars (slower, red tinted)
         this.stars = this.add.tileSprite(0, 0, 480, 640, 'stars')
             .setOrigin(0, 0)
-            .setTileScale(2);
+            .setTileScale(2)
+            .setTint(0xff4444)
+            .setAlpha(0.5);
 
-        // Game Over text
-        const gameOverText = this.add.text(width / 2, 120, 'GAME OVER', {
+        // Explosion debris in background
+        for (let i = 0; i < 5; i++) {
+            this.time.delayedCall(i * 300, () => {
+                const x = Phaser.Math.Between(100, 380);
+                const y = Phaser.Math.Between(150, 400);
+                const explosion = this.add.sprite(x, y, 'explosion-large')
+                    .setScale(1.5)
+                    .setAlpha(0.6)
+                    .setTint(0xff4400);
+                explosion.play('explode-large');
+                explosion.on('animationcomplete', () => explosion.destroy());
+            });
+        }
+
+        // ===== GAME OVER TITLE =====
+
+        // Glitchy red glow layers
+        for (let i = 3; i > 0; i--) {
+            this.add.text(width / 2 + Phaser.Math.Between(-3, 3), 100, 'MISSION', {
+                fontFamily: 'monospace',
+                fontSize: '48px',
+                fill: '#ff0000'
+            }).setOrigin(0.5).setAlpha(0.2 / i);
+        }
+
+        const missionText = this.add.text(width / 2, 100, 'MISSION', {
             fontFamily: 'monospace',
             fontSize: '48px',
-            fill: '#ff0000',
-            stroke: '#000',
+            fill: '#ff4444',
+            stroke: '#000000',
             strokeThickness: 6
         }).setOrigin(0.5);
 
-        // Animate
+        for (let i = 3; i > 0; i--) {
+            this.add.text(width / 2 + Phaser.Math.Between(-3, 3), 155, 'FAILED', {
+                fontFamily: 'monospace',
+                fontSize: '56px',
+                fill: '#ff0000'
+            }).setOrigin(0.5).setAlpha(0.2 / i);
+        }
+
+        const failedText = this.add.text(width / 2, 155, 'FAILED', {
+            fontFamily: 'monospace',
+            fontSize: '56px',
+            fill: '#ff0000',
+            stroke: '#440000',
+            strokeThickness: 8
+        }).setOrigin(0.5);
+
+        // Glitch animation on title
         this.tweens.add({
-            targets: gameOverText,
-            scale: { from: 0.5, to: 1 },
+            targets: [missionText, failedText],
+            x: { from: width / 2 - 2, to: width / 2 + 2 },
+            duration: 50,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Scale in animation
+        this.tweens.add({
+            targets: [missionText, failedText],
+            scale: { from: 1.5, to: 1 },
             duration: 500,
             ease: 'Back.easeOut'
         });
 
-        // Stats
-        const statsY = 220;
+        // ===== STATS BOX =====
+
+        const statsBox = this.add.rectangle(width / 2, 320, 320, 180, 0x000000, 0.8)
+            .setStrokeStyle(2, 0xff4444);
 
         // Score
-        this.add.text(width / 2, statsY, 'SCORE', {
+        this.add.text(width / 2, 255, '>>> FINAL SCORE <<<', {
             fontFamily: 'monospace',
-            fontSize: '18px',
-            fill: '#888'
+            fontSize: '14px',
+            fill: '#888888'
         }).setOrigin(0.5);
 
-        this.add.text(width / 2, statsY + 35, this.finalScore.toString(), {
+        const scoreText = this.add.text(width / 2, 290, '0', {
             fontFamily: 'monospace',
-            fontSize: '40px',
-            fill: '#fff',
-            stroke: '#000',
+            fontSize: '42px',
+            fill: '#ffffff',
+            stroke: '#000000',
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        // Level & Wave reached
-        this.add.text(width / 2, statsY + 100, `REACHED: LEVEL ${this.level} - WAVE ${this.wave}`, {
+        // Animated score counter
+        this.tweens.addCounter({
+            from: 0,
+            to: this.finalScore,
+            duration: 1500,
+            ease: 'Power2',
+            onUpdate: (tween) => {
+                scoreText.setText(Math.floor(tween.getValue()).toString());
+            }
+        });
+
+        // Progress reached
+        this.add.text(width / 2, 345, `TERMINATED AT: LEVEL ${this.level}-${this.wave}`, {
             fontFamily: 'monospace',
-            fontSize: '20px',
-            fill: '#ff0',
-            stroke: '#000',
-            strokeThickness: 3
+            fontSize: '16px',
+            fill: '#ff6666'
         }).setOrigin(0.5);
 
-        // High score
+        // High score check
         const highScore = parseInt(localStorage.getItem('highScore')) || 0;
         if (this.finalScore > highScore) {
             localStorage.setItem('highScore', this.finalScore);
 
-            const newHigh = this.add.text(width / 2, statsY + 160, 'NEW HIGH SCORE!', {
+            const newHighText = this.add.text(width / 2, 385, '!!! NEW HIGH SCORE !!!', {
                 fontFamily: 'monospace',
-                fontSize: '26px',
+                fontSize: '18px',
                 fill: '#ffff00',
-                stroke: '#000',
-                strokeThickness: 4
+                stroke: '#000000',
+                strokeThickness: 3
             }).setOrigin(0.5);
 
             this.tweens.add({
-                targets: newHigh,
-                scale: { from: 1, to: 1.1 },
+                targets: newHighText,
+                scale: { from: 1, to: 1.15 },
+                alpha: { from: 1, to: 0.7 },
                 duration: 300,
                 yoyo: true,
                 repeat: -1
             });
         } else {
-            this.add.text(width / 2, statsY + 160, `HIGH SCORE: ${highScore}`, {
+            this.add.text(width / 2, 385, `RECORD: ${highScore}`, {
                 fontFamily: 'monospace',
-                fontSize: '20px',
-                fill: '#666'
+                fontSize: '14px',
+                fill: '#666666'
             }).setOrigin(0.5);
         }
 
-        // Tips
+        // ===== TACTICAL ADVICE =====
+
         const tips = [
-            'TIP: Collect power-ups for stronger weapons!',
-            'TIP: Shield protects you for 5 seconds!',
-            'TIP: Watch out for enemy bullets!',
-            'TIP: Big enemies track your position!',
-            'TIP: Bosses have multiple attack patterns!'
+            'TACTICAL: Fireballs pierce through enemies',
+            'TACTICAL: Shield absorbs all damage for 5 sec',
+            'TACTICAL: Big enemies track your position',
+            'TACTICAL: Bosses enrage at low health',
+            'TACTICAL: Speed boost helps dodge bullet hell'
         ];
         const tip = Phaser.Math.RND.pick(tips);
 
-        this.add.text(width / 2, 480, tip, {
+        this.add.text(width / 2, 450, tip, {
             fontFamily: 'monospace',
-            fontSize: '14px',
-            fill: '#888'
+            fontSize: '12px',
+            fill: '#666666'
         }).setOrigin(0.5);
 
-        // Restart prompt
-        const restartText = this.add.text(width / 2, 540, 'PRESS SPACE TO RETRY', {
-            fontFamily: 'monospace',
-            fontSize: '20px',
-            fill: '#fff',
-            stroke: '#000',
-            strokeThickness: 3
-        }).setOrigin(0.5);
+        // ===== ACTION BUTTONS =====
 
+        // Retry button
+        const retryBtn = this.add.text(width / 2, 510, '[ RETRY MISSION ]', {
+            fontFamily: 'monospace',
+            fontSize: '22px',
+            fill: '#00ff00',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        retryBtn.on('pointerover', () => {
+            retryBtn.setScale(1.1);
+            retryBtn.setFill('#ffffff');
+        });
+        retryBtn.on('pointerout', () => {
+            retryBtn.setScale(1);
+            retryBtn.setFill('#00ff00');
+        });
+        retryBtn.on('pointerdown', () => {
+            this.cameras.main.flash(300, 255, 255, 255);
+            this.time.delayedCall(200, () => {
+                this.scene.start('GameScene', { level: 1 });
+            });
+        });
+
+        // Blink animation
         this.tweens.add({
-            targets: restartText,
-            alpha: 0.3,
+            targets: retryBtn,
+            alpha: { from: 1, to: 0.5 },
             duration: 500,
             yoyo: true,
             repeat: -1
         });
 
-        // Menu prompt
-        this.add.text(width / 2, 580, 'Press M for Menu', {
+        // Menu button
+        const menuBtn = this.add.text(width / 2, 560, '[ ABORT TO BASE ]', {
             fontFamily: 'monospace',
             fontSize: '16px',
-            fill: '#666'
+            fill: '#888888',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        menuBtn.on('pointerover', () => menuBtn.setFill('#ffffff'));
+        menuBtn.on('pointerout', () => menuBtn.setFill('#888888'));
+        menuBtn.on('pointerdown', () => this.scene.start('MenuScene'));
+
+        // Bottom text
+        this.add.text(width / 2, 610, 'SPACE to retry | M for menu', {
+            fontFamily: 'monospace',
+            fontSize: '10px',
+            fill: '#444444'
         }).setOrigin(0.5);
 
-        // Input
+        // ===== INPUT =====
+
         this.input.keyboard.once('keydown-SPACE', () => {
-            this.scene.start('GameScene', { level: 1 });
+            this.cameras.main.flash(300, 255, 255, 255);
+            this.time.delayedCall(200, () => {
+                this.scene.start('GameScene', { level: 1 });
+            });
         });
 
         this.input.keyboard.once('keydown-M', () => {
             this.scene.start('MenuScene');
         });
 
-        this.input.once('pointerdown', () => {
-            this.scene.start('GameScene', { level: 1 });
-        });
+        // Initial effects
+        this.cameras.main.shake(300, 0.02);
+        this.cameras.main.flash(500, 255, 0, 0);
     }
 
     update() {
-        // Scroll stars only (background is static)
-        this.stars.tilePositionY -= 0.5;
+        this.stars.tilePositionY -= 0.3;
     }
 }

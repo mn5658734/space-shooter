@@ -32,11 +32,11 @@ export default class BootScene extends Phaser.Scene {
 
         // ============== SOUND EFFECTS ==============
 
-        this.load.audio('sfx-shoot', 'assets/sounds/shoot.wav');
         this.load.audio('sfx-explosion', 'assets/sounds/explosion.wav');
         this.load.audio('sfx-hit', 'assets/sounds/hit.wav');
         this.load.audio('sfx-powerup', 'assets/sounds/powerup.wav');
         this.load.audio('sfx-player-death', 'assets/sounds/player-death.wav');
+        this.load.audio('sfx-boss-warning', 'assets/sounds/boss-warning.wav');
 
         // ============== PLAYER & ENEMIES ==============
 
