@@ -861,8 +861,8 @@ export default class GameScene extends Phaser.Scene {
             bullet.destroy();
         }
 
-        // Each bullet does 10 damage (fireballs do 15) - use SCENE-LEVEL HP
-        const damage = bullet.isPiercing ? 15 : 10;
+        // Each bullet does 10 damage (fireballs do 5 vs boss since they pierce)
+        const damage = bullet.isPiercing ? 5 : 10;
         this.bossHP = Math.max(0, this.bossHP - damage);
 
         // Update health bar using scene-level HP
