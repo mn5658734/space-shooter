@@ -18,8 +18,18 @@ const config = {
         }
     },
     scale: {
-        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 480,
+        height: 640,
+        min: {
+            width: 240,
+            height: 320
+        },
+        max: {
+            width: 960,
+            height: 1280
+        }
     },
     scene: [BootScene, MenuScene, GameScene, GameOverScene, VictoryScene]
 };
