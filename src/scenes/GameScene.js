@@ -48,6 +48,8 @@ export default class GameScene extends Phaser.Scene {
         this.touchPointer = null;
         this.touchStartX = 0;
         this.touchStartY = 0;
+        this.playerStartX = 0;
+        this.playerStartY = 0;
     }
 
     create() {
@@ -209,17 +211,27 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-        // Touch controls
+        // Touch controls - relative movement (drag direction controls ship)
         this.input.on('pointerdown', (pointer) => {
             this.touchPointer = pointer;
-            this.touchStartX = this.player.x;
-            this.touchStartY = this.player.y;
+            this.touchStartX = pointer.x;
+            this.touchStartY = pointer.y;
+            this.playerStartX = this.player.x;
+            this.playerStartY = this.player.y;
         });
 
         this.input.on('pointermove', (pointer) => {
-            if (pointer.isDown && !this.isDead) {
-                this.player.x = Phaser.Math.Clamp(pointer.x, 30, 450);
-                this.player.y = Phaser.Math.Clamp(pointer.y, 30, 610);
+            if (pointer.isDown && !this.isDead && this.touchPointer) {
+                // Calculate delta from touch start position
+                const deltaX = pointer.x - this.touchStartX;
+                const deltaY = pointer.y - this.touchStartY;
+
+                // Apply delta to player's starting position
+                const newX = this.playerStartX + deltaX;
+                const newY = this.playerStartY + deltaY;
+
+                this.player.x = Phaser.Math.Clamp(newX, 30, 450);
+                this.player.y = Phaser.Math.Clamp(newY, 30, 610);
             }
         });
 
