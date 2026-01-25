@@ -59,7 +59,7 @@ export default class MenuScene extends Phaser.Scene {
 
         // ===== TITLE =====
 
-        const titleInto = this.add.text(width / 2, 70, 'INTO THE', {
+        const titleInto = this.add.text(width / 2, 70, 'SPACE', {
             fontFamily: 'monospace',
             fontSize: '36px',
             fill: '#ffaa00',
@@ -67,7 +67,7 @@ export default class MenuScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        const titleInferno = this.add.text(width / 2, 120, 'INFERNO', {
+        const titleInferno = this.add.text(width / 2, 120, 'SHOOTER', {
             fontFamily: 'monospace',
             fontSize: '56px',
             fill: '#ff4400',

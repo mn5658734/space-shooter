@@ -1,4 +1,4 @@
-# Into the Inferno
+# Space Shooter
 
 A retro-style space shooter built with Phaser 3. Fight through three distinct levels, defeat powerful bosses, and save the Vega-9 colony.
 
