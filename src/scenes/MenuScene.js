@@ -67,7 +67,7 @@ export default class MenuScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        const titleInferno = this.add.text(width / 2, 120, 'SHOOTER', {
+        const titleInferno = this.add.text(width / 2, 120, 'KILLER', {
             fontFamily: 'monospace',
             fontSize: '56px',
             fill: '#ff4400',
