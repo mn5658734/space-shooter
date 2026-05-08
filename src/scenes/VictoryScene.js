@@ -1,3 +1,5 @@
+import { mergeHighScore } from '../persistenceLogic.js';
+
 export default class VictoryScene extends Phaser.Scene {
     constructor() {
         super({ key: 'VictoryScene' });
@@ -146,9 +148,9 @@ export default class VictoryScene extends Phaser.Scene {
         });
 
         // High score check
-        const highScore = parseInt(localStorage.getItem('highScore')) || 0;
-        if (this.finalScore > highScore) {
-            localStorage.setItem('highScore', this.finalScore);
+        const highMerge = mergeHighScore(localStorage.getItem('highScore'), this.finalScore);
+        if (highMerge.isNewRecord) {
+            localStorage.setItem('highScore', String(highMerge.nextHighScore));
 
             this.time.delayedCall(1600, () => {
                 const newRecordText = this.add.text(width / 2, 505, 'NEW HIGH SCORE!', {

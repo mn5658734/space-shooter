@@ -1,4 +1,4 @@
-import { test, describe } from 'node:test';
+import { describe, test } from 'vitest';
 import assert from 'node:assert';
 import {
     calculateEnemyCount,
@@ -50,6 +50,11 @@ describe('Enemy Spawning', () => {
         const l3w10 = calculateSpawnDelay(3, 10);
         assert.ok(l3w10 >= 180, 'Spawn delay should not go below 180ms');
     });
+
+    test('calculateSpawnDelay respects global floor on levels 1–2', () => {
+        const floorCase = calculateSpawnDelay(1, 99);
+        assert.ok(floorCase >= 250, 'Levels 1–2 should not spawn faster than 250ms');
+    });
 });
 
 describe('Enemy Probabilities', () => {
@@ -79,6 +84,11 @@ describe('Boss and Enemy Stats', () => {
         assert.strictEqual(calculateBossHP(1), 50);
         assert.strictEqual(calculateBossHP(2), 75);
         assert.strictEqual(calculateBossHP(3), 100);
+    });
+
+    test('calculateBossHP defaults for unknown level', () => {
+        assert.strictEqual(calculateBossHP(0), 50);
+        assert.strictEqual(calculateBossHP(99), 50);
     });
 
     test('calculateBigEnemyHealth increases with level', () => {
@@ -113,6 +123,10 @@ describe('UI Calculations', () => {
 
     test('calculateHealthBarWidth does not go negative', () => {
         assert.strictEqual(calculateHealthBarWidth(-10, 100), 0);
+    });
+
+    test('calculateHealthBarWidth allows over-max health for overshield-style UI', () => {
+        assert.strictEqual(calculateHealthBarWidth(150, 100), 294);
     });
 });
 

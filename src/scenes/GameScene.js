@@ -1,3 +1,10 @@
+import {
+    mergeHighScore,
+    mergeBestLevel,
+    mergeBestWave,
+    computeTotalWaveIndex
+} from '../persistenceLogic.js';
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
@@ -1010,9 +1017,9 @@ export default class GameScene extends Phaser.Scene {
     levelComplete() {
 
         // Save progress
-        const bestLevel = parseInt(localStorage.getItem('bestLevel')) || 0;
-        if (this.level > bestLevel) {
-            localStorage.setItem('bestLevel', this.level);
+        const bestLevelMerge = mergeBestLevel(localStorage.getItem('bestLevel'), this.level);
+        if (bestLevelMerge.improved) {
+            localStorage.setItem('bestLevel', String(bestLevelMerge.nextBestLevel));
         }
 
         if (this.level >= 3) {
@@ -1174,12 +1181,16 @@ export default class GameScene extends Phaser.Scene {
         if (this.enemySpawnTimer) this.enemySpawnTimer.remove();
 
         // Save stats
-        const highScore = parseInt(localStorage.getItem('highScore')) || 0;
-        if (this.score > highScore) localStorage.setItem('highScore', this.score);
+        const highMerge = mergeHighScore(localStorage.getItem('highScore'), this.score);
+        if (highMerge.isNewRecord) {
+            localStorage.setItem('highScore', String(highMerge.nextHighScore));
+        }
 
-        const bestWave = parseInt(localStorage.getItem('bestWave')) || 0;
-        const totalWave = (this.level - 1) * this.wavesPerLevel + this.wave;
-        if (totalWave > bestWave) localStorage.setItem('bestWave', totalWave);
+        const totalWave = computeTotalWaveIndex(this.level, this.wave, this.wavesPerLevel);
+        const waveMerge = mergeBestWave(localStorage.getItem('bestWave'), totalWave);
+        if (waveMerge.improved) {
+            localStorage.setItem('bestWave', String(waveMerge.nextBestWave));
+        }
 
         this.time.delayedCall(2000, () => {
             this.scene.start('GameOverScene', { score: this.score, level: this.level, wave: this.wave });
