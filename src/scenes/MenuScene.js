@@ -115,8 +115,8 @@ export default class MenuScene extends Phaser.Scene {
 
         // ===== DECORATIVE SHIP =====
 
-        this.ship = this.add.sprite(240, 500, 'ship').setScale(3.2);
-        this.ship.play('ship-thrust');
+        this.ship = this.add.sprite(240, 500, 'pika-hero-0').setScale(1.65);
+        this.ship.play('pika-thrust');
 
         // Ship floating animation
         this.tweens.add({

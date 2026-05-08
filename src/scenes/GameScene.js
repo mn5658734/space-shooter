@@ -162,11 +162,11 @@ export default class GameScene extends Phaser.Scene {
     // ============== PLAYER ==============
 
     createPlayer() {
-        this.player = this.physics.add.sprite(240, 550, 'ship');
-        this.player.setScale(2.55);
+        this.player = this.physics.add.sprite(240, 550, 'pika-hero-0');
+        this.player.setScale(1.45);
         this.player.setCollideWorldBounds(true);
-        this.player.play('ship-idle');
-        this.player.setSize(10, 17);
+        this.player.play('pika-idle');
+        this.player.setSize(12, 22);
         this.player.setDepth(10);
 
         this.shieldSprite = this.add.graphics();
@@ -268,7 +268,7 @@ export default class GameScene extends Phaser.Scene {
         }).setOrigin(0.5, 0).setDepth(100);
 
         // Lives icon and text
-        this.livesIcon = this.add.sprite(420, 22, 'ship', 0).setScale(1.2).setDepth(100);
+        this.livesIcon = this.add.sprite(420, 22, 'pika-hero-0').setScale(0.72).setDepth(100);
         this.livesText = this.add.text(438, 14, this.lives.toString(), {
             fontFamily: 'monospace', fontSize: '20px',
             fill: '#0f0', stroke: '#000', strokeThickness: 3
@@ -346,7 +346,7 @@ export default class GameScene extends Phaser.Scene {
     handlePlayerMovement() {
         // Skip if touch is active
         if (this.touchPointer && this.touchPointer.isDown) {
-            this.player.play('ship-idle', true);
+            this.player.play('pika-idle', true);
             return;
         }
 
@@ -362,7 +362,7 @@ export default class GameScene extends Phaser.Scene {
         else if (down.isDown || this.wasd.down.isDown) velocityY = speed;
 
         this.player.setVelocity(velocityX, velocityY);
-        this.player.play(velocityY < 0 ? 'ship-thrust' : 'ship-idle', true);
+        this.player.play(velocityY < 0 ? 'pika-thrust' : 'pika-idle', true);
     }
 
     handleShooting(time) {
@@ -393,16 +393,16 @@ export default class GameScene extends Phaser.Scene {
 
     createBullet(x, y, velocityX) {
         if (this.fireballActive) {
-            // Fireball - piercing shot
-            const bullet = this.bullets.create(x, y, 'fireball');
-            bullet.setScale(1.5);
-            bullet.play('fireball-spin');
-            bullet.body.setSize(20, 20);
+            // Mega volt — piercing electric orb
+            const bullet = this.bullets.create(x, y, 'volt-mega-0');
+            bullet.setScale(1.85);
+            bullet.play('volt-mega-spin');
+            bullet.body.setSize(22, 22);
             bullet.setVelocity(velocityX * 0.8, -this.bulletSpeed * 0.9);
-            bullet.isPiercing = true; // Mark as piercing
+            bullet.isPiercing = true;
         } else {
-            // Normal laser
-            const bullet = this.bullets.create(x, y, 'laser', 0);
+            const bullet = this.bullets.create(x, y, 'volt-bolt-0');
+            bullet.play('volt-flicker');
             bullet.setScale(2);
             bullet.body.setSize(8, 14);
             bullet.setVelocity(velocityX, -this.bulletSpeed);
@@ -1220,7 +1220,7 @@ export default class GameScene extends Phaser.Scene {
         powerup.setVelocityY(80);
 
         // Fireball powerup has orange tint to distinguish from weapon
-        if (type === 'fireball') powerup.setTint(0xff6600);
+        if (type === 'fireball') powerup.setTint(0xffff66);
 
         this.tweens.add({
             targets: powerup,
@@ -1242,7 +1242,7 @@ export default class GameScene extends Phaser.Scene {
             shield: ['SHIELD!', 0x00ffff],
             speed: ['SPEED BOOST!', 0x00ff00],
             life: ['EXTRA LIFE!', 0xff00ff],
-            fireball: ['FIREBALL!', 0xff4400]
+            fireball: ['THUNDER!', 0xffff44]
         };
 
         if (type === 'weapon') this.weaponLevel = Math.min(this.weaponLevel + 1, 3);

@@ -1,3 +1,5 @@
+import { registerPikachuTextures } from '../sprites/pikachuTextures.js';
+
 export default class BootScene extends Phaser.Scene {
     constructor() {
         super({ key: 'BootScene' });
@@ -46,10 +48,6 @@ export default class BootScene extends Phaser.Scene {
         this.load.audio('sfx-player-death', 'assets/sounds/player-death.wav');
 
         // ============== PLAYER & ENEMIES ==============
-
-        this.load.spritesheet('ship', 'assets/sprites/ship.png', {
-            frameWidth: 16, frameHeight: 24
-        });
 
         this.load.spritesheet('enemy-small', 'assets/sprites/enemy-small.png', {
             frameWidth: 16, frameHeight: 16
@@ -176,19 +174,52 @@ export default class BootScene extends Phaser.Scene {
     }
 
     create() {
-        // ============== PLAYER ANIMATIONS ==============
+        // ============== PLAYER (Pikachu-style hero) & PROJECTILES ==============
+
+        registerPikachuTextures(this);
 
         this.anims.create({
-            key: 'ship-idle',
-            frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 4 }),
-            frameRate: 10,
+            key: 'pika-idle',
+            frames: [
+                { key: 'pika-hero-0', frame: 0 },
+                { key: 'pika-hero-1', frame: 0 }
+            ],
+            frameRate: 8,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'ship-thrust',
-            frames: this.anims.generateFrameNumbers('ship', { start: 5, end: 9 }),
-            frameRate: 15,
+            key: 'pika-thrust',
+            frames: [
+                { key: 'pika-hero-2', frame: 0 },
+                { key: 'pika-hero-3', frame: 0 },
+                { key: 'pika-hero-4', frame: 0 },
+                { key: 'pika-hero-3', frame: 0 }
+            ],
+            frameRate: 14,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'volt-flicker',
+            frames: [
+                { key: 'volt-bolt-0', frame: 0 },
+                { key: 'volt-bolt-1', frame: 0 },
+                { key: 'volt-bolt-2', frame: 0 },
+                { key: 'volt-bolt-1', frame: 0 }
+            ],
+            frameRate: 18,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'volt-mega-spin',
+            frames: [
+                { key: 'volt-mega-0', frame: 0 },
+                { key: 'volt-mega-1', frame: 0 },
+                { key: 'volt-mega-2', frame: 0 }
+            ],
+            frameRate: 14,
             repeat: -1
         });
 
