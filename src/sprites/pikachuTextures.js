@@ -1,168 +1,179 @@
 /**
- * Procedural Pikachu-inspired hero + electric bolt textures (original pixel-style art).
- * Not official Pokémon assets — fan-style depiction for the game.
+ * Procedural Doraemon-style hero + helicopter projectile textures.
+ * Original fan-style vector pixels; no official character assets.
  */
 
-const YELLOW = 0xffdc42;
-const YELLOW_DARK = 0xc9a018;
-const BROWN = 0x6b4423;
-const BLACK = 0x1a1a1a;
-const RED = 0xff4455;
+const BLUE = 0x2f8bff;
+const BLUE_DARK = 0x1e5fc7;
 const WHITE = 0xffffff;
+const BLACK = 0x111111;
+const RED = 0xff3a3a;
+const YELLOW = 0xffdd44;
 
-function drawPikachuHero(g, frameIndex, W, H) {
+function drawRotor(g, cx, cy, phase) {
+    g.fillStyle(RED, 1);
+    g.fillCircle(cx, cy, 2);
+    g.lineStyle(3, 0xd8d8d8, 0.95);
+    if (phase === 0) {
+        g.beginPath();
+        g.moveTo(cx - 9, cy);
+        g.lineTo(cx + 9, cy);
+        g.strokePath();
+    } else if (phase === 1) {
+        g.beginPath();
+        g.moveTo(cx - 7, cy - 3);
+        g.lineTo(cx + 7, cy + 3);
+        g.strokePath();
+    } else {
+        g.beginPath();
+        g.moveTo(cx - 7, cy + 3);
+        g.lineTo(cx + 7, cy - 3);
+        g.strokePath();
+    }
+}
+
+function drawDoraHero(g, frameIndex, W, H) {
     g.clear();
-
-    const bob = frameIndex % 2 === 1 ? 1 : 0;
-
-    // Lightning tail (zigzag, left side)
-    g.fillStyle(YELLOW_DARK, 1);
-    g.fillTriangle(4 + bob, H - 6, 10, H - 14, 6, H - 18);
-    g.fillTriangle(6, H - 18, 12, H - 16, 8, H - 22);
-    g.fillStyle(YELLOW, 1);
-    g.fillTriangle(8, H - 22, 14, H - 20, 10, H - 26);
+    const bob = frameIndex % 2 === 0 ? 0 : 1;
 
     // Body
+    g.fillStyle(BLUE, 1);
+    g.fillRoundedRect(8, H - 20, 16, 14, 6);
+    g.fillStyle(WHITE, 1);
+    g.fillRoundedRect(11, H - 18, 10, 10, 4);
+
+    // Bell
     g.fillStyle(YELLOW, 1);
-    g.fillRoundedRect(10, H - 18, 14, 14, 5);
+    g.fillCircle(W / 2, H - 11, 2);
+    g.lineStyle(1, BLACK, 1);
+    g.strokeCircle(W / 2, H - 11, 2);
 
     // Head
-    g.fillCircle(W / 2, 13 + bob, 9);
-
-    // Ears
-    g.fillStyle(YELLOW, 1);
-    g.fillTriangle(11 - bob, 10, 7 - bob, 2, 15 - bob, 7);
-    g.fillTriangle(W - 11 + bob, 10, W - 7 + bob, 2, W - 15 + bob, 7);
-    g.fillStyle(BLACK, 1);
-    g.fillTriangle(10 - bob, 9, 8 - bob, 4, 13 - bob, 7);
-    g.fillTriangle(W - 10 + bob, 9, W - 8 + bob, 4, W - 13 + bob, 7);
-
-    // Back stripes
-    g.fillStyle(BROWN, 1);
-    g.fillRect(W - 8, H - 16, 3, 9);
-
-    // Cheeks
-    g.fillStyle(RED, 1);
-    g.fillCircle(11, 14 + bob, 3);
-    g.fillCircle(W - 11, 14 + bob, 3);
+    g.fillStyle(BLUE, 1);
+    g.fillCircle(W / 2, 14 + bob, 10);
+    g.fillStyle(WHITE, 1);
+    g.fillCircle(W / 2, 16 + bob, 8);
 
     // Eyes
-    g.fillStyle(BLACK, 1);
-    g.fillCircle(14, 11 + bob, 2);
-    g.fillCircle(W - 14, 11 + bob, 2);
     g.fillStyle(WHITE, 1);
-    g.fillCircle(15, 10 + bob, 1);
-    g.fillCircle(W - 15, 10 + bob, 1);
-
-    // Tiny grin
+    g.fillEllipse(W / 2 - 3, 11 + bob, 4, 6);
+    g.fillEllipse(W / 2 + 3, 11 + bob, 4, 6);
     g.fillStyle(BLACK, 1);
-    g.fillRect(W / 2 - 2, 15 + bob, 4, 1);
+    g.fillCircle(W / 2 - 2, 12 + bob, 1);
+    g.fillCircle(W / 2 + 2, 12 + bob, 1);
 
-    // Thrust: electric sparks around paws
+    // Nose + whiskers
+    g.fillStyle(RED, 1);
+    g.fillCircle(W / 2, 14 + bob, 2);
+    g.lineStyle(1, BLACK, 1);
+    g.beginPath();
+    g.moveTo(W / 2 - 1, 16 + bob);
+    g.lineTo(W / 2 - 8, 15 + bob);
+    g.moveTo(W / 2 - 1, 17 + bob);
+    g.lineTo(W / 2 - 8, 18 + bob);
+    g.moveTo(W / 2 + 1, 16 + bob);
+    g.lineTo(W / 2 + 8, 15 + bob);
+    g.moveTo(W / 2 + 1, 17 + bob);
+    g.lineTo(W / 2 + 8, 18 + bob);
+    g.strokePath();
+
+    // Mouth
+    g.lineStyle(1, BLACK, 1);
+    g.beginPath();
+    g.moveTo(W / 2, 16 + bob);
+    g.lineTo(W / 2, 21 + bob);
+    g.moveTo(W / 2 - 4, 21 + bob);
+    g.lineTo(W / 2 + 4, 21 + bob);
+    g.strokePath();
+
+    // Thrust frames show active take-copter
     if (frameIndex >= 2) {
-        const phase = frameIndex - 2;
-        g.lineStyle(2, WHITE, 1);
-        const offsets = [
-            [[5, H - 4], [2, H - 1]], [[27, H - 4], [30, H - 1]],
-            [[8, H - 2], [4, H - 1]], [[24, H - 2], [28, H - 1]]
-        ];
-        const pair = offsets[phase % offsets.length];
-        g.beginPath();
-        g.moveTo(pair[0][0], pair[0][1]);
-        g.lineTo(pair[1][0], pair[1][1]);
-        g.strokePath();
+        drawRotor(g, W / 2, 2, frameIndex - 2);
+        g.fillStyle(BLUE_DARK, 1);
+        g.fillRect(W / 2 - 1, 4, 2, 4);
+    }
+}
 
-        g.lineStyle(2, 0xffff88, 0.9);
+function drawHeliBladeShot(g, variant, W, H) {
+    g.clear();
+    const cx = W / 2;
+    const cy = H / 2;
+
+    g.fillStyle(0x9ec8ff, 0.8);
+    g.fillCircle(cx, cy, 4);
+    g.lineStyle(3, WHITE, 0.9);
+    if (variant === 0) {
         g.beginPath();
-        g.moveTo(12, H - 8);
-        g.lineTo(phase % 2 === 0 ? 8 : 16, H - 4);
+        g.moveTo(cx - 6, cy);
+        g.lineTo(cx + 6, cy);
         g.strokePath();
+    } else if (variant === 1) {
         g.beginPath();
-        g.moveTo(W - 12, H - 8);
-        g.lineTo(phase % 2 === 0 ? W - 8 : W - 16, H - 4);
+        g.moveTo(cx - 5, cy - 3);
+        g.lineTo(cx + 5, cy + 3);
+        g.strokePath();
+    } else {
+        g.beginPath();
+        g.moveTo(cx - 5, cy + 3);
+        g.lineTo(cx + 5, cy - 3);
         g.strokePath();
     }
 }
 
-function drawLightningBolt(g, variant, W, H) {
+function drawHeliDisc(g, variant, size) {
     g.clear();
-    const seeds = [
-        [[W / 2, H - 2], [W / 2 - 4, H * 0.55], [W / 2 + 3, H * 0.35], [W / 2 - 2, 2]],
-        [[W / 2, H - 2], [W / 2 + 4, H * 0.5], [W / 2 - 5, H * 0.38], [W / 2 + 2, 2]],
-        [[W / 2, H - 2], [W / 2 - 3, H * 0.52], [W / 2 + 5, H * 0.32], [W / 2 - 3, 2]]
-    ];
-    const pts = seeds[variant % 3];
+    const cx = size / 2;
+    const cy = size / 2;
+    g.fillStyle(0x7fb9ff, 0.45);
+    g.fillCircle(cx, cy, 10);
+    g.lineStyle(2, 0xdff3ff, 0.9);
+    g.strokeCircle(cx, cy, 10 + (variant % 2));
+    g.strokeCircle(cx, cy, 7);
 
-    g.lineStyle(4, 0xffee44, 1);
-    g.beginPath();
-    g.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) {
-        g.lineTo(pts[i][0], pts[i][1]);
+    g.lineStyle(3, WHITE, 1);
+    if (variant === 0) {
+        g.beginPath();
+        g.moveTo(cx - 9, cy);
+        g.lineTo(cx + 9, cy);
+        g.strokePath();
+    } else if (variant === 1) {
+        g.beginPath();
+        g.moveTo(cx - 7, cy - 4);
+        g.lineTo(cx + 7, cy + 4);
+        g.strokePath();
+    } else {
+        g.beginPath();
+        g.moveTo(cx - 7, cy + 4);
+        g.lineTo(cx + 7, cy - 4);
+        g.strokePath();
     }
-    g.strokePath();
-
-    g.lineStyle(2, WHITE, 1);
-    g.beginPath();
-    g.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) {
-        g.lineTo(pts[i][0] + (i % 2 === 0 ? -1 : 1), pts[i][1]);
-    }
-    g.strokePath();
-}
-
-function drawMegaVolt(g, variant, S) {
-    g.clear();
-    const cx = S / 2;
-    const cy = S / 2;
-    for (let r = 8; r <= 14; r += 3) {
-        g.lineStyle(2, variant === 0 ? 0xffffaa : 0x88ddff, 0.85);
-        g.strokeCircle(cx, cy, r + (variant % 2));
-    }
-    const j = variant % 3;
-    const dx = j === 0 ? 0 : j === 1 ? -1 : 1;
-    g.lineStyle(4, 0xffee44, 1);
-    g.beginPath();
-    g.moveTo(cx, S - 4);
-    g.lineTo(cx - 4 + dx, cy + 2);
-    g.lineTo(cx + 4 + dx, cy - 2);
-    g.lineTo(cx + dx, 5);
-    g.strokePath();
-    g.lineStyle(2, WHITE, 1);
-    g.beginPath();
-    g.moveTo(cx, S - 5);
-    g.lineTo(cx - 3 + dx, cy + 2);
-    g.lineTo(cx + 3 + dx, cy - 3);
-    g.lineTo(cx + dx, 6);
-    g.strokePath();
 }
 
 /**
  * @param {Phaser.Scene} scene
  */
-export function registerPikachuTextures(scene) {
+export function registerDoraemonTextures(scene) {
     const heroW = 32;
     const heroH = 40;
 
     for (let f = 0; f < 5; f++) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        drawPikachuHero(g, f, heroW, heroH);
-        g.generateTexture(`pika-hero-${f}`, heroW, heroH);
+        drawDoraHero(g, f, heroW, heroH);
+        g.generateTexture(`dora-hero-${f}`, heroW, heroH);
         g.destroy();
     }
 
-    const voltW = 14;
-    const voltH = 22;
     for (let v = 0; v < 3; v++) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        drawLightningBolt(g, v, voltW, voltH);
-        g.generateTexture(`volt-bolt-${v}`, voltW, voltH);
+        drawHeliBladeShot(g, v, 14, 22);
+        g.generateTexture(`heli-shot-${v}`, 14, 22);
         g.destroy();
     }
 
     for (let m = 0; m < 3; m++) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        drawMegaVolt(g, m, 28);
-        g.generateTexture(`volt-mega-${m}`, 28, 28);
+        drawHeliDisc(g, m, 28);
+        g.generateTexture(`heli-disc-${m}`, 28, 28);
         g.destroy();
     }
 }

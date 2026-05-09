@@ -1,4 +1,4 @@
-import { registerPikachuTextures } from '../sprites/pikachuTextures.js';
+import { registerDoraemonTextures } from '../sprites/pikachuTextures.js';
 
 export default class BootScene extends Phaser.Scene {
     constructor() {
@@ -174,50 +174,50 @@ export default class BootScene extends Phaser.Scene {
     }
 
     create() {
-        // ============== PLAYER (Pikachu-style hero) & PROJECTILES ==============
+        // ============== PLAYER (Doraemon-style hero) & PROJECTILES ==============
 
-        registerPikachuTextures(this);
+        registerDoraemonTextures(this);
 
         this.anims.create({
-            key: 'pika-idle',
+            key: 'dora-idle',
             frames: [
-                { key: 'pika-hero-0', frame: 0 },
-                { key: 'pika-hero-1', frame: 0 }
+                { key: 'dora-hero-0', frame: 0 },
+                { key: 'dora-hero-1', frame: 0 }
             ],
             frameRate: 8,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'pika-thrust',
+            key: 'dora-thrust',
             frames: [
-                { key: 'pika-hero-2', frame: 0 },
-                { key: 'pika-hero-3', frame: 0 },
-                { key: 'pika-hero-4', frame: 0 },
-                { key: 'pika-hero-3', frame: 0 }
+                { key: 'dora-hero-2', frame: 0 },
+                { key: 'dora-hero-3', frame: 0 },
+                { key: 'dora-hero-4', frame: 0 },
+                { key: 'dora-hero-3', frame: 0 }
             ],
             frameRate: 14,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'volt-flicker',
+            key: 'heli-spin',
             frames: [
-                { key: 'volt-bolt-0', frame: 0 },
-                { key: 'volt-bolt-1', frame: 0 },
-                { key: 'volt-bolt-2', frame: 0 },
-                { key: 'volt-bolt-1', frame: 0 }
+                { key: 'heli-shot-0', frame: 0 },
+                { key: 'heli-shot-1', frame: 0 },
+                { key: 'heli-shot-2', frame: 0 },
+                { key: 'heli-shot-1', frame: 0 }
             ],
             frameRate: 18,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'volt-mega-spin',
+            key: 'heli-disc-spin',
             frames: [
-                { key: 'volt-mega-0', frame: 0 },
-                { key: 'volt-mega-1', frame: 0 },
-                { key: 'volt-mega-2', frame: 0 }
+                { key: 'heli-disc-0', frame: 0 },
+                { key: 'heli-disc-1', frame: 0 },
+                { key: 'heli-disc-2', frame: 0 }
             ],
             frameRate: 14,
             repeat: -1

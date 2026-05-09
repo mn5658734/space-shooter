@@ -162,10 +162,10 @@ export default class GameScene extends Phaser.Scene {
     // ============== PLAYER ==============
 
     createPlayer() {
-        this.player = this.physics.add.sprite(240, 550, 'pika-hero-0');
+        this.player = this.physics.add.sprite(240, 550, 'dora-hero-0');
         this.player.setScale(1.45);
         this.player.setCollideWorldBounds(true);
-        this.player.play('pika-idle');
+        this.player.play('dora-idle');
         this.player.setSize(12, 22);
         this.player.setDepth(10);
 
@@ -268,7 +268,7 @@ export default class GameScene extends Phaser.Scene {
         }).setOrigin(0.5, 0).setDepth(100);
 
         // Lives icon and text
-        this.livesIcon = this.add.sprite(420, 22, 'pika-hero-0').setScale(0.72).setDepth(100);
+        this.livesIcon = this.add.sprite(420, 22, 'dora-hero-0').setScale(0.72).setDepth(100);
         this.livesText = this.add.text(438, 14, this.lives.toString(), {
             fontFamily: 'monospace', fontSize: '20px',
             fill: '#0f0', stroke: '#000', strokeThickness: 3
@@ -346,7 +346,7 @@ export default class GameScene extends Phaser.Scene {
     handlePlayerMovement() {
         // Skip if touch is active
         if (this.touchPointer && this.touchPointer.isDown) {
-            this.player.play('pika-idle', true);
+            this.player.play('dora-idle', true);
             return;
         }
 
@@ -362,7 +362,7 @@ export default class GameScene extends Phaser.Scene {
         else if (down.isDown || this.wasd.down.isDown) velocityY = speed;
 
         this.player.setVelocity(velocityX, velocityY);
-        this.player.play(velocityY < 0 ? 'pika-thrust' : 'pika-idle', true);
+        this.player.play(velocityY < 0 ? 'dora-thrust' : 'dora-idle', true);
     }
 
     handleShooting(time) {
@@ -393,16 +393,16 @@ export default class GameScene extends Phaser.Scene {
 
     createBullet(x, y, velocityX) {
         if (this.fireballActive) {
-            // Mega volt — piercing electric orb
-            const bullet = this.bullets.create(x, y, 'volt-mega-0');
+            // Helicopter disc - piercing shot
+            const bullet = this.bullets.create(x, y, 'heli-disc-0');
             bullet.setScale(1.85);
-            bullet.play('volt-mega-spin');
+            bullet.play('heli-disc-spin');
             bullet.body.setSize(22, 22);
             bullet.setVelocity(velocityX * 0.8, -this.bulletSpeed * 0.9);
             bullet.isPiercing = true;
         } else {
-            const bullet = this.bullets.create(x, y, 'volt-bolt-0');
-            bullet.play('volt-flicker');
+            const bullet = this.bullets.create(x, y, 'heli-shot-0');
+            bullet.play('heli-spin');
             bullet.setScale(2);
             bullet.body.setSize(8, 14);
             bullet.setVelocity(velocityX, -this.bulletSpeed);
@@ -1242,7 +1242,7 @@ export default class GameScene extends Phaser.Scene {
             shield: ['SHIELD!', 0x00ffff],
             speed: ['SPEED BOOST!', 0x00ff00],
             life: ['EXTRA LIFE!', 0xff00ff],
-            fireball: ['THUNDER!', 0xffff44]
+            fireball: ['HELICOPTER!', 0xaaddff]
         };
 
         if (type === 'weapon') this.weaponLevel = Math.min(this.weaponLevel + 1, 3);

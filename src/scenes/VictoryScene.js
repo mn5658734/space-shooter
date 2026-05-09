@@ -74,8 +74,8 @@ export default class VictoryScene extends Phaser.Scene {
         // ===== HERO SHIP (appears after epilogue) =====
 
         this.time.delayedCall(epilogue.length * 400 + 500, () => {
-            this.ship = this.add.sprite(240, 380, 'pika-hero-0').setScale(2).setAlpha(0);
-            this.ship.play('pika-thrust');
+            this.ship = this.add.sprite(240, 380, 'dora-hero-0').setScale(2).setAlpha(0);
+            this.ship.play('dora-thrust');
 
             this.tweens.add({
                 targets: this.ship,
