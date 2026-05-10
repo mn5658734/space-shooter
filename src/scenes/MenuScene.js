@@ -1,3 +1,12 @@
+import {
+    CHARACTER_ORDER,
+    CHARACTERS,
+    DEFAULT_CHARACTER_ID,
+    configureHeroSprite,
+    getCharacterConfig,
+    playHeroAnim
+} from '../gameCharacters.js';
+
 export default class MenuScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MenuScene' });
@@ -5,20 +14,16 @@ export default class MenuScene extends Phaser.Scene {
 
     create() {
         const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
 
-        // Stop any previous music and start title music
         this.sound.stopAll();
         this.music = this.sound.add('music-title', { loop: true, volume: 0.5 });
         this.music.play();
 
-        // Dynamic background with all three level backgrounds cycling
         this.bgIndex = 0;
         this.backgrounds = ['background', 'desert-bg', 'lava-bg'];
         this.bg = this.add.image(240, 320, this.backgrounds[0])
             .setDisplaySize(480, 640);
 
-        // Cycle backgrounds every 3 seconds
         this.time.addEvent({
             delay: 3000,
             callback: () => {
@@ -40,13 +45,11 @@ export default class MenuScene extends Phaser.Scene {
             loop: true
         });
 
-        // Scrolling stars layer
         this.stars = this.add.tileSprite(0, 0, 480, 640, 'stars')
             .setOrigin(0, 0)
             .setTileScale(2)
             .setAlpha(0.7);
 
-        // Spawn animated enemies in background
         this.bgEnemies = [];
         this.time.addEvent({
             delay: 800,
@@ -54,12 +57,11 @@ export default class MenuScene extends Phaser.Scene {
             loop: true
         });
 
-        // Dark overlay for better text readability
         this.add.rectangle(240, 320, 480, 640, 0x000000, 0.4);
 
         // ===== TITLE =====
 
-        const titleInto = this.add.text(width / 2, 70, 'SPACE', {
+        this.add.text(width / 2, 48, 'SPACE', {
             fontFamily: 'monospace',
             fontSize: '36px',
             fill: '#ffaa00',
@@ -67,7 +69,7 @@ export default class MenuScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        const titleInferno = this.add.text(width / 2, 120, 'KILLER', {
+        const titleInferno = this.add.text(width / 2, 92, 'KILLER', {
             fontFamily: 'monospace',
             fontSize: '56px',
             fill: '#ff4400',
@@ -84,53 +86,63 @@ export default class MenuScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
-        // ===== SCROLLING STORY =====
+        // ===== CHARACTER SELECT =====
 
-        const storyText =
-            'The Vega-9 colony went dark.\n\n' +
-            'Recon footage shows sand where\n' +
-            'there should be steel, fire where\n' +
-            'there should be sky.\n\n' +
-            'Something is tearing the planet\n' +
-            'apart from the inside.\n\n' +
-            'You\'re the only pilot in range.\n\n' +
-            'Get in. Get answers.';
-
-        const story = this.add.text(width / 2, 380, storyText, {
+        this.add.text(width / 2, 132, 'CHOOSE PILOT', {
             fontFamily: 'monospace',
-            fontSize: '14px',
-            fill: '#888888',
-            align: 'center',
-            lineSpacing: 6
-        }).setOrigin(0.5, 0);
+            fontSize: '17px',
+            fill: '#ffdd66',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(4);
 
-        // Slow scroll animation - loops
-        this.tweens.add({
-            targets: story,
-            y: { from: 380, to: 140 },
-            duration: 18000,
-            repeat: -1,
-            ease: 'Linear'
+        const rowBaseY = 158;
+        const rowGap = 24;
+
+        this.pickHighlight = this.add.rectangle(width / 2, rowBaseY, 440, rowGap - 2, 0xffff00, 0.14)
+            .setOrigin(0.5)
+            .setDepth(3);
+
+        this.selectedCharacterId = DEFAULT_CHARACTER_ID;
+
+        const previewY = 318;
+        const startCfg = getCharacterConfig(this.selectedCharacterId);
+        const pk = startCfg.useSpritesheetHero ? startCfg.heroSheetKey : `${startCfg.heroTextureBase}-0`;
+        const pf = startCfg.heroSheetIdleFrame ?? 0;
+        this.previewHero = this.add.sprite(width / 2, previewY, pk, pf).setDepth(5);
+        configureHeroSprite(this.previewHero, startCfg);
+        this.previewHero.setScale(startCfg.previewScale);
+        playHeroAnim(this.previewHero, startCfg, startCfg.previewAnimThrust);
+
+        CHARACTER_ORDER.forEach((id, idx) => {
+            const c = CHARACTERS[id];
+            const y = rowBaseY + idx * rowGap;
+            const txt = this.add.text(width / 2, y, `${idx + 1}. ${c.label} — ${c.shotLabel}`, {
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                fill: '#dddddd',
+                stroke: '#000000',
+                strokeThickness: 3
+            }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(4);
+
+            txt.on('pointerover', () => txt.setFill('#ffffff'));
+            txt.on('pointerout', () => txt.setFill('#dddddd'));
+            txt.on('pointerdown', () => this.selectCharacter(id));
         });
 
-        // ===== DECORATIVE SHIP =====
+        this.selectCharacter(this.selectedCharacterId);
 
-        this.ship = this.add.sprite(240, 500, 'dora-hero-0').setScale(1.65);
-        this.ship.play('dora-thrust');
-
-        // Ship floating animation
         this.tweens.add({
-            targets: this.ship,
-            y: { from: 500, to: 520 },
+            targets: this.previewHero,
+            y: { from: previewY, to: previewY + 14 },
             duration: 2000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
         });
 
-        // Ship subtle rotation
         this.tweens.add({
-            targets: this.ship,
+            targets: this.previewHero,
             angle: { from: -3, to: 3 },
             duration: 3000,
             yoyo: true,
@@ -138,16 +150,25 @@ export default class MenuScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
-        // ===== MENU BUTTON =====
+        this.add.text(width / 2, 418, 'Tap a pilot, then launch.', {
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            fill: '#777777',
+            align: 'center'
+        }).setOrigin(0.5);
 
-        const playBtn = this.createButton(width / 2, 560, '[ LAUNCH ]', '#00ff00', () => {
+        const launch = () => {
             this.cameras.main.flash(500, 255, 255, 255);
             this.time.delayedCall(300, () => {
-                this.scene.start('GameScene', { level: 1 });
+                this.scene.start('GameScene', {
+                    level: 1,
+                    characterId: this.selectedCharacterId
+                });
             });
-        });
+        };
 
-        // Pulsing effect on play button
+        const playBtn = this.createButton(width / 2, 468, '[ LAUNCH ]', '#00ff00', launch);
+
         this.tweens.add({
             targets: playBtn,
             alpha: { from: 1, to: 0.7 },
@@ -156,36 +177,52 @@ export default class MenuScene extends Phaser.Scene {
             repeat: -1
         });
 
-        // Version
-        this.add.text(width / 2, 625, 'v1.0', {
+        this.add.text(width / 2, 548, 'Keys 1–4: pick pilot   Space/Enter: launch', {
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            fill: '#444444'
+        }).setOrigin(0.5);
+
+        this.add.text(width / 2, 625, 'v1.1', {
             fontFamily: 'monospace',
             fontSize: '10px',
             fill: '#222222'
         }).setOrigin(0.5);
 
-        // Keyboard shortcuts
-        this.input.keyboard.once('keydown-SPACE', () => {
-            this.cameras.main.flash(500, 255, 255, 255);
-            this.time.delayedCall(300, () => {
-                this.scene.start('GameScene', { level: 1 });
-            });
-        });
+        const k1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+        const k2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+        const k3 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+        const k4 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+        k1.on('down', () => this.selectCharacter(CHARACTER_ORDER[0]));
+        k2.on('down', () => this.selectCharacter(CHARACTER_ORDER[1]));
+        k3.on('down', () => this.selectCharacter(CHARACTER_ORDER[2]));
+        k4.on('down', () => this.selectCharacter(CHARACTER_ORDER[3]));
 
-        this.input.keyboard.once('keydown-ENTER', () => {
-            this.cameras.main.flash(500, 255, 255, 255);
-            this.time.delayedCall(300, () => {
-                this.scene.start('GameScene', { level: 1 });
-            });
-        });
+        this.input.keyboard.once('keydown-SPACE', launch);
+        this.input.keyboard.once('keydown-ENTER', launch);
 
-        // Initial screen flash
         this.cameras.main.flash(1000, 0, 0, 0);
+    }
+
+    selectCharacter(id) {
+        if (!CHARACTERS[id]) return;
+        this.selectedCharacterId = id;
+        const cfg = getCharacterConfig(id);
+        configureHeroSprite(this.previewHero, cfg);
+        this.previewHero.setScale(cfg.previewScale);
+        playHeroAnim(this.previewHero, cfg, cfg.previewAnimThrust);
+
+        const idx = CHARACTER_ORDER.indexOf(id);
+        const rowBaseY = 158;
+        const rowGap = 24;
+        if (idx >= 0) {
+            this.pickHighlight.y = rowBaseY + idx * rowGap;
+        }
     }
 
     update() {
         this.stars.tilePositionY -= 1;
 
-        // Update background enemies
         this.bgEnemies.forEach((enemy, index) => {
             if (enemy.y > 700) {
                 enemy.destroy();

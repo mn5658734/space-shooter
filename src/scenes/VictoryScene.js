@@ -1,4 +1,10 @@
 import { mergeHighScore } from '../persistenceLogic.js';
+import {
+    configureHeroSprite,
+    DEFAULT_CHARACTER_ID,
+    getCharacterConfig,
+    playHeroAnim
+} from '../gameCharacters.js';
 
 export default class VictoryScene extends Phaser.Scene {
     constructor() {
@@ -7,6 +13,7 @@ export default class VictoryScene extends Phaser.Scene {
 
     init(data) {
         this.finalScore = data.score || 0;
+        this.characterId = data.characterId || DEFAULT_CHARACTER_ID;
     }
 
     create() {
@@ -74,8 +81,13 @@ export default class VictoryScene extends Phaser.Scene {
         // ===== HERO SHIP (appears after epilogue) =====
 
         this.time.delayedCall(epilogue.length * 400 + 500, () => {
-            this.ship = this.add.sprite(240, 380, 'dora-hero-0').setScale(2).setAlpha(0);
-            this.ship.play('dora-thrust');
+            const vCfg = getCharacterConfig(this.characterId);
+            const vk = vCfg.useSpritesheetHero ? vCfg.heroSheetKey : `${vCfg.heroTextureBase}-0`;
+            const vf = vCfg.heroSheetIdleFrame ?? 0;
+            this.ship = this.add.sprite(240, 380, vk, vf).setAlpha(0);
+            configureHeroSprite(this.ship, vCfg);
+            this.ship.setScale(vCfg.heroScale * 1.35);
+            playHeroAnim(this.ship, vCfg, true);
 
             this.tweens.add({
                 targets: this.ship,

@@ -4,6 +4,11 @@ import {
     mergeBestWave,
     computeTotalWaveIndex
 } from '../persistenceLogic.js';
+import {
+    configureHeroSprite,
+    getCharacterConfig,
+    playHeroAnim
+} from '../gameCharacters.js';
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
@@ -57,6 +62,9 @@ export default class GameScene extends Phaser.Scene {
         this.touchStartY = 0;
         this.playerStartX = 0;
         this.playerStartY = 0;
+
+        this.charCfg = getCharacterConfig(data.characterId);
+        this.characterId = this.charCfg.id;
     }
 
     create() {
@@ -162,11 +170,16 @@ export default class GameScene extends Phaser.Scene {
     // ============== PLAYER ==============
 
     createPlayer() {
-        this.player = this.physics.add.sprite(240, 550, 'dora-hero-0');
-        this.player.setScale(1.45);
+        const pk = this.charCfg.useSpritesheetHero
+            ? this.charCfg.heroSheetKey
+            : `${this.charCfg.heroTextureBase}-0`;
+        const pf = this.charCfg.heroSheetIdleFrame ?? 0;
+        this.player = this.physics.add.sprite(240, 550, pk, pf);
+        configureHeroSprite(this.player, this.charCfg);
+        this.player.setScale(this.charCfg.heroScale);
         this.player.setCollideWorldBounds(true);
-        this.player.play('dora-idle');
-        this.player.setSize(12, 22);
+        playHeroAnim(this.player, this.charCfg, false);
+        this.player.setSize(this.charCfg.heroBodyW, this.charCfg.heroBodyH);
         this.player.setDepth(10);
 
         this.shieldSprite = this.add.graphics();
@@ -211,13 +224,17 @@ export default class GameScene extends Phaser.Scene {
 
                 if (this.level >= 3) {
                     // Victory!
-                    this.scene.start('VictoryScene', { score: this.score });
+                    this.scene.start('VictoryScene', {
+                        score: this.score,
+                        characterId: this.characterId
+                    });
                 } else {
                     // Next level
                     this.scene.start('GameScene', {
                         level: this.level + 1,
                         score: this.score,
-                        weaponLevel: this.weaponLevel
+                        weaponLevel: this.weaponLevel,
+                        characterId: this.characterId
                     });
                 }
             }
@@ -268,7 +285,14 @@ export default class GameScene extends Phaser.Scene {
         }).setOrigin(0.5, 0).setDepth(100);
 
         // Lives icon and text
-        this.livesIcon = this.add.sprite(420, 22, 'dora-hero-0').setScale(0.72).setDepth(100);
+        const lk = this.charCfg.useSpritesheetHero
+            ? this.charCfg.heroSheetKey
+            : `${this.charCfg.heroTextureBase}-0`;
+        const lf = this.charCfg.heroSheetIdleFrame ?? 0;
+        this.livesIcon = this.add.sprite(420, 22, lk, lf).setDepth(100);
+        configureHeroSprite(this.livesIcon, this.charCfg);
+        this.livesIcon.setScale(this.charCfg.livesIconScale);
+        playHeroAnim(this.livesIcon, this.charCfg, false);
         this.livesText = this.add.text(438, 14, this.lives.toString(), {
             fontFamily: 'monospace', fontSize: '20px',
             fill: '#0f0', stroke: '#000', strokeThickness: 3
@@ -346,7 +370,7 @@ export default class GameScene extends Phaser.Scene {
     handlePlayerMovement() {
         // Skip if touch is active
         if (this.touchPointer && this.touchPointer.isDown) {
-            this.player.play('dora-idle', true);
+            playHeroAnim(this.player, this.charCfg, false);
             return;
         }
 
@@ -362,7 +386,7 @@ export default class GameScene extends Phaser.Scene {
         else if (down.isDown || this.wasd.down.isDown) velocityY = speed;
 
         this.player.setVelocity(velocityX, velocityY);
-        this.player.play(velocityY < 0 ? 'dora-thrust' : 'dora-idle', true);
+        playHeroAnim(this.player, this.charCfg, velocityY < 0);
     }
 
     handleShooting(time) {
@@ -392,21 +416,20 @@ export default class GameScene extends Phaser.Scene {
     }
 
     createBullet(x, y, velocityX) {
-        if (this.fireballActive) {
-            // Helicopter disc - piercing shot
-            const bullet = this.bullets.create(x, y, 'heli-disc-0');
-            bullet.setScale(1.85);
-            bullet.play('heli-disc-spin');
-            bullet.body.setSize(22, 22);
-            bullet.setVelocity(velocityX * 0.8, -this.bulletSpeed * 0.9);
-            bullet.isPiercing = true;
+        const spec = this.fireballActive ? this.charCfg.piercingShot : this.charCfg.normalShot;
+        let bullet;
+        if (spec.frame !== undefined) {
+            bullet = this.bullets.create(x, y, spec.texture, spec.frame);
         } else {
-            const bullet = this.bullets.create(x, y, 'heli-shot-0');
-            bullet.play('heli-spin');
-            bullet.setScale(2);
-            bullet.body.setSize(8, 14);
-            bullet.setVelocity(velocityX, -this.bulletSpeed);
+            bullet = this.bullets.create(x, y, spec.texture);
         }
+        if (spec.anim) bullet.play(spec.anim);
+        bullet.setScale(spec.scale);
+        bullet.body.setSize(spec.bodyW, spec.bodyH);
+        const vxMul = spec.vxMul ?? 1;
+        const vyMul = spec.vyMul ?? 1;
+        bullet.setVelocity(velocityX * vxMul, -this.bulletSpeed * vyMul);
+        bullet.isPiercing = this.fireballActive;
     }
 
     updateShield() {
@@ -1025,7 +1048,10 @@ export default class GameScene extends Phaser.Scene {
         if (this.level >= 3) {
             // Game complete!
             this.music.stop();
-            this.scene.start('VictoryScene', { score: this.score });
+            this.scene.start('VictoryScene', {
+                score: this.score,
+                characterId: this.characterId
+            });
         } else {
             // Next level - music keeps playing until next stage loads
             this.announceText.setText('LEVEL COMPLETE!');
@@ -1035,7 +1061,8 @@ export default class GameScene extends Phaser.Scene {
                 this.scene.start('GameScene', {
                     level: this.level + 1,
                     score: this.score,
-                    weaponLevel: this.weaponLevel
+                    weaponLevel: this.weaponLevel,
+                    characterId: this.characterId
                 });
             });
         }
@@ -1193,7 +1220,12 @@ export default class GameScene extends Phaser.Scene {
         }
 
         this.time.delayedCall(2000, () => {
-            this.scene.start('GameOverScene', { score: this.score, level: this.level, wave: this.wave });
+            this.scene.start('GameOverScene', {
+                score: this.score,
+                level: this.level,
+                wave: this.wave,
+                characterId: this.characterId
+            });
         });
     }
 
@@ -1220,7 +1252,7 @@ export default class GameScene extends Phaser.Scene {
         powerup.setVelocityY(80);
 
         // Fireball powerup has orange tint to distinguish from weapon
-        if (type === 'fireball') powerup.setTint(0xffff66);
+        if (type === 'fireball') powerup.setTint(this.charCfg.powerupFireballTint);
 
         this.tweens.add({
             targets: powerup,
@@ -1242,7 +1274,7 @@ export default class GameScene extends Phaser.Scene {
             shield: ['SHIELD!', 0x00ffff],
             speed: ['SPEED BOOST!', 0x00ff00],
             life: ['EXTRA LIFE!', 0xff00ff],
-            fireball: ['HELICOPTER!', 0xaaddff]
+            fireball: this.charCfg.powerupFireballMessage
         };
 
         if (type === 'weapon') this.weaponLevel = Math.min(this.weaponLevel + 1, 3);

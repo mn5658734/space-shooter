@@ -1,4 +1,5 @@
 import { mergeHighScore } from '../persistenceLogic.js';
+import { DEFAULT_CHARACTER_ID } from '../gameCharacters.js';
 
 export default class GameOverScene extends Phaser.Scene {
     constructor() {
@@ -9,6 +10,7 @@ export default class GameOverScene extends Phaser.Scene {
         this.finalScore = data.score || 0;
         this.level = data.level || 1;
         this.wave = data.wave || 1;
+        this.characterId = data.characterId || DEFAULT_CHARACTER_ID;
     }
 
     create() {
@@ -122,7 +124,10 @@ export default class GameOverScene extends Phaser.Scene {
         retryBtn.on('pointerdown', () => {
             this.cameras.main.flash(300, 255, 255, 255);
             this.time.delayedCall(200, () => {
-                this.scene.start('GameScene', { level: 1 });
+                this.scene.start('GameScene', {
+                    level: 1,
+                    characterId: this.characterId
+                });
             });
         });
 
@@ -153,7 +158,10 @@ export default class GameOverScene extends Phaser.Scene {
         this.input.keyboard.once('keydown-SPACE', () => {
             this.cameras.main.flash(300, 255, 255, 255);
             this.time.delayedCall(200, () => {
-                this.scene.start('GameScene', { level: 1 });
+                this.scene.start('GameScene', {
+                    level: 1,
+                    characterId: this.characterId
+                });
             });
         });
 
